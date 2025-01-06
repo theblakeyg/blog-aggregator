@@ -1,27 +1,39 @@
 package main
 
 import (
-	"fmt"
+	"database/sql"
 	"log"
 	"os"
 
+	_ "github.com/lib/pq"
 	"github.com/theblakeyg/blog-aggregator/internal/config"
+	"github.com/theblakeyg/blog-aggregator/internal/database"
 )
 
 type state struct {
-	config *config.Config
+	config   *config.Config
+	database *database.Queries
 }
 
 func main() {
 	//Read our config file
 	configFile, err := config.Read()
 	if err != nil {
-		fmt.Printf("error reading config: %v", err)
+		log.Fatal("error reading config:", err)
 	}
+
+	//Connect to our db
+	db, err := sql.Open("postgres", configFile.DbUrl)
+	if err != nil {
+		log.Fatal("error connecting to database:", err)
+	}
+
+	dbQueries := database.New(db)
 
 	//Create our current state and attach our config file
 	currentState := &state{
-		config: &configFile,
+		config:   &configFile,
+		database: dbQueries,
 	}
 
 	//Register all of our commands
@@ -29,6 +41,7 @@ func main() {
 		registeredCommands: make(map[string]func(*state, command) error),
 	}
 	cmds.Register("login", HandlerLogin)
+	cmds.Register("register", HandlerRegister)
 
 	//Check to see that we have enough arguments
 	if len(os.Args) < 2 {

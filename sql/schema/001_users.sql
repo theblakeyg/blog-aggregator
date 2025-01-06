@@ -1,4 +1,4 @@
--- +goose up
+-- +goose Up
 CREATE TABLE users (
     id UUID,
     created_at TIMESTAMP,
@@ -6,5 +6,5 @@ CREATE TABLE users (
     name VARCHAR(50) UNIQUE
 );
 
--- +goose down
+-- +goose Down
 DROP TABLE users;
