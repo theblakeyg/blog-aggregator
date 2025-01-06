@@ -42,6 +42,9 @@ func main() {
 	}
 	cmds.Register("login", HandlerLogin)
 	cmds.Register("register", HandlerRegister)
+	cmds.Register("reset", HandlerReset)
+	cmds.Register("users", HandlerUsers)
+	cmds.Register("agg", HandlerAgg)
 
 	//Check to see that we have enough arguments
 	if len(os.Args) < 2 {
@@ -58,5 +61,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 }
