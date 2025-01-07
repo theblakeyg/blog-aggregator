@@ -45,6 +45,8 @@ func main() {
 	cmds.Register("reset", HandlerReset)
 	cmds.Register("users", HandlerUsers)
 	cmds.Register("agg", HandlerAgg)
+	cmds.Register("addfeed", HandlerAddFeed)
+	cmds.Register("feeds", HandlerFeeds)
 
 	//Check to see that we have enough arguments
 	if len(os.Args) < 2 {
