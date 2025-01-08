@@ -38,5 +38,13 @@ func HandlerAddFeed(s *state, cmd command) error {
 	}
 
 	fmt.Printf("added RSS feed successfully: %v\n", result)
+
+	err = HandlerFollow(s, command{Args: []string{result.Url.String}})
+	if err != nil {
+		return fmt.Errorf("error following newly created feed: %v", err)
+	}
+
+	fmt.Println("RSS feed successfully followed")
+
 	return nil
 }

@@ -1,6 +1,6 @@
 -- +goose Up
 CREATE TABLE feeds (
-    id UUID,
+    id UUID UNIQUE,
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
     name VARCHAR,
