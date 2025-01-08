@@ -10,18 +10,13 @@ import (
 	"github.com/theblakeyg/blog-aggregator/internal/database"
 )
 
-func HandlerAddFeed(s *state, cmd command) error {
+func HandlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) != 2 {
 		return fmt.Errorf("not enough arguments provided")
 	}
 
 	name := cmd.Args[0]
 	url := cmd.Args[1]
-	userName := s.config.CurrentUserName
-	user, err := s.database.GetUser(context.Background(), sql.NullString{String: userName, Valid: true})
-	if err != nil {
-		return fmt.Errorf("error getting user id: %v", err)
-	}
 
 	args := database.CreateFeedParams{
 		ID:        uuid.NullUUID{UUID: uuid.New(), Valid: true},
@@ -39,7 +34,7 @@ func HandlerAddFeed(s *state, cmd command) error {
 
 	fmt.Printf("added RSS feed successfully: %v\n", result)
 
-	err = HandlerFollow(s, command{Args: []string{result.Url.String}})
+	err = HandlerFollow(s, command{Args: []string{result.Url.String}}, user)
 	if err != nil {
 		return fmt.Errorf("error following newly created feed: %v", err)
 	}

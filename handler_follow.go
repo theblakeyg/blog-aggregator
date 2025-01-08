@@ -10,17 +10,12 @@ import (
 	"github.com/theblakeyg/blog-aggregator/internal/database"
 )
 
-func HandlerFollow(s *state, cmd command) error {
+func HandlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("not enough arguments provided")
 	}
 
 	feedUrl := cmd.Args[0]
-
-	user, err := s.database.GetUser(context.Background(), sql.NullString{String: s.config.CurrentUserName, Valid: true})
-	if err != nil {
-		return fmt.Errorf("could not get current user from config: %v", err)
-	}
 
 	feed, err := s.database.GetFeedByUrl(context.Background(), sql.NullString{String: feedUrl, Valid: true})
 	if err != nil {

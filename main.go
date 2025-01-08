@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 
@@ -45,10 +47,10 @@ func main() {
 	cmds.Register("reset", HandlerReset)
 	cmds.Register("users", HandlerUsers)
 	cmds.Register("agg", HandlerAgg)
-	cmds.Register("addfeed", HandlerAddFeed)
+	cmds.Register("addfeed", middlewareLoggedIn(HandlerAddFeed))
 	cmds.Register("feeds", HandlerFeeds)
-	cmds.Register("following", HandlerFollowing)
-	cmds.Register("follow", HandlerFollow)
+	cmds.Register("following", middlewareLoggedIn(HandlerFollowing))
+	cmds.Register("follow", middlewareLoggedIn(HandlerFollow))
 
 	//Check to see that we have enough arguments
 	if len(os.Args) < 2 {
@@ -64,5 +66,16 @@ func main() {
 	err = cmds.Run(currentState, command{Name: cmdName, Args: cmdArgs})
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func middlewareLoggedIn(handler func(s *state, cmd command, user database.User) error) func(*state, command) error {
+	return func(s *state, cmd command) error {
+		user, err := s.database.GetUser(context.Background(), sql.NullString{String: s.config.CurrentUserName, Valid: true})
+		if err != nil {
+			return fmt.Errorf("error getting current user: %v", err)
+		}
+
+		return handler(s, cmd, user)
 	}
 }
