@@ -72,7 +72,7 @@ func main() {
 
 func middlewareLoggedIn(handler func(s *state, cmd command, user database.User) error) func(*state, command) error {
 	return func(s *state, cmd command) error {
-		user, err := s.database.GetUser(context.Background(), sql.NullString{String: s.config.CurrentUserName, Valid: true})
+		user, err := s.database.GetUser(context.Background(), s.config.CurrentUserName)
 		if err != nil {
 			return fmt.Errorf("error getting current user: %v", err)
 		}

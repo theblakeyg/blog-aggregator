@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 )
 
@@ -13,17 +12,17 @@ func HandlerLogin(s *state, cmd command) error {
 
 	userName := cmd.Args[0]
 
-	user, err := s.database.GetUser(context.Background(), sql.NullString{String: userName, Valid: true})
+	user, err := s.database.GetUser(context.Background(), userName)
 	if err != nil {
 		return fmt.Errorf("could not get user by this username: %v", err)
 	}
 
-	err = s.config.SetUser(user.Name.String)
+	err = s.config.SetUser(user.Name)
 	if err != nil {
 		return fmt.Errorf("could not set current user: %v", err)
 	}
 
-	fmt.Printf("User has been set to: %v", user.Name.String)
+	fmt.Printf("User has been set to: %v", user.Name)
 
 	return nil
 }

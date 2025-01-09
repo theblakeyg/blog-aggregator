@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -18,10 +17,10 @@ func HandlerRegister(s *state, cmd command) error {
 	userName := cmd.Args[0]
 
 	args := database.CreateUserParams{
-		ID:        uuid.NullUUID{UUID: uuid.New(), Valid: true},
-		CreatedAt: sql.NullTime{Time: time.Now(), Valid: true},
-		UpdatedAt: sql.NullTime{Time: time.Now(), Valid: true},
-		Name:      sql.NullString{String: userName, Valid: true},
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      userName,
 	}
 
 	result, err := s.database.CreateUser(context.Background(), args)
@@ -29,9 +28,9 @@ func HandlerRegister(s *state, cmd command) error {
 		return fmt.Errorf("could not create user: %v", err)
 	}
 
-	fmt.Printf("User has been added: %v", result.Name.String)
+	fmt.Printf("User has been added: %v", result.Name)
 
-	err = s.config.SetUser(result.Name.String)
+	err = s.config.SetUser(result.Name)
 	if err != nil {
 		return fmt.Errorf("could not login with new user: %v", err)
 	}

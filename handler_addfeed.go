@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -19,12 +18,12 @@ func HandlerAddFeed(s *state, cmd command, user database.User) error {
 	url := cmd.Args[1]
 
 	args := database.CreateFeedParams{
-		ID:        uuid.NullUUID{UUID: uuid.New(), Valid: true},
-		CreatedAt: sql.NullTime{Time: time.Now(), Valid: true},
-		UpdatedAt: sql.NullTime{Time: time.Now(), Valid: true},
-		Name:      sql.NullString{String: name, Valid: true},
-		Url:       sql.NullString{String: url, Valid: true},
-		UserID:    uuid.NullUUID{UUID: user.ID.UUID, Valid: true},
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      name,
+		Url:       url,
+		UserID:    user.ID,
 	}
 
 	result, err := s.database.CreateFeed(context.Background(), args)
@@ -34,7 +33,7 @@ func HandlerAddFeed(s *state, cmd command, user database.User) error {
 
 	fmt.Printf("added RSS feed successfully: %v\n", result)
 
-	err = HandlerFollow(s, command{Args: []string{result.Url.String}}, user)
+	err = HandlerFollow(s, command{Args: []string{result.Url}}, user)
 	if err != nil {
 		return fmt.Errorf("error following newly created feed: %v", err)
 	}

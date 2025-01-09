@@ -7,7 +7,7 @@ package database
 
 import (
 	"context"
-	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -35,20 +35,20 @@ INNER JOIN users ON users.id = inserted_feed_follow.user_id
 
 type CreateFeedFollowParams struct {
 	ID        uuid.UUID
-	CreatedAt sql.NullTime
-	UpdatedAt sql.NullTime
-	UserID    uuid.NullUUID
-	FeedID    uuid.NullUUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    uuid.UUID
+	FeedID    uuid.UUID
 }
 
 type CreateFeedFollowRow struct {
 	ID        uuid.UUID
-	CreatedAt sql.NullTime
-	UpdatedAt sql.NullTime
-	UserID    uuid.NullUUID
-	FeedID    uuid.NullUUID
-	FeedName  sql.NullString
-	UserName  sql.NullString
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    uuid.UUID
+	FeedID    uuid.UUID
+	FeedName  string
+	UserName  string
 }
 
 func (q *Queries) CreateFeedFollow(ctx context.Context, arg CreateFeedFollowParams) (CreateFeedFollowRow, error) {
@@ -79,7 +79,7 @@ INNER JOIN feeds ON feeds.id = feed_follows.feed_id
 WHERE feed_follows.user_id = $1
 `
 
-func (q *Queries) FollowsByUserId(ctx context.Context, userID uuid.NullUUID) ([]Feed, error) {
+func (q *Queries) FollowsByUserId(ctx context.Context, userID uuid.UUID) ([]Feed, error) {
 	rows, err := q.db.QueryContext(ctx, followsByUserId, userID)
 	if err != nil {
 		return nil, err
@@ -116,8 +116,8 @@ AND feed_id = $2
 `
 
 type UnfollowFeedParams struct {
-	UserID uuid.NullUUID
-	FeedID uuid.NullUUID
+	UserID uuid.UUID
+	FeedID uuid.UUID
 }
 
 func (q *Queries) UnfollowFeed(ctx context.Context, arg UnfollowFeedParams) error {

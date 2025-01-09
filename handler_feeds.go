@@ -12,14 +12,14 @@ func HandlerFeeds(s *state, cmd command) error {
 	}
 
 	for _, feed := range result {
-		name := feed.Name.String
-		url := feed.Url.String
+		name := feed.Name
+		url := feed.Url
 		user, err := s.database.GetUserById(context.Background(), feed.UserID)
 		if err != nil {
 			return fmt.Errorf("could not get user by user_id: %v", err)
 		}
 
-		fmt.Printf("Name: %v | URL: %v | UserName: %v\n", name, url, user.Name.String)
+		fmt.Printf("Name: %v | URL: %v | UserName: %v\n", name, url, user.Name)
 	}
 
 	return nil
