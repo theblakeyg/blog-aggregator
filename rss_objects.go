@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/theblakeyg/blog-aggregator/internal/database"
 )
 
@@ -92,21 +93,33 @@ func scrapeFeeds(s *state) error {
 	if err != nil {
 		return fmt.Errorf("error fetching feed: %v", err)
 	}
-	fmt.Println()
-	fmt.Println()
-	fmt.Println("---------------------")
-	fmt.Println("|")
-	fmt.Printf("| %v\n", rssFeed.Channel.Title)
-	fmt.Printf("| %v\n", rssFeed.Channel.Description)
-	fmt.Println("|")
-	fmt.Println("|")
 
-	for _, channel := range rssFeed.Channel.Item {
-		fmt.Printf("| %v\n", channel.Title)
+	for _, item := range rssFeed.Channel.Item {
+		pubDate, err := time.Parse(time.RFC1123, item.PubDate)
+		if err != nil {
+			fmt.Printf("could not parse published data: %v\n", err)
+			return fmt.Errorf("could not parse published data: %v", err)
+		}
+
+		args := database.CreatePostParams{
+			ID:          uuid.New(),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+			Title:       item.Title,
+			Url:         item.Link,
+			Description: item.Description,
+			PublishedAt: pubDate,
+			FeedID:      feed.ID,
+		}
+		result, err := s.database.CreatePost(context.Background(), args)
+		if err != nil {
+			fmt.Printf("error creating post: %v\n", err)
+
+			return fmt.Errorf("error creating post: %v", err)
+		}
+
+		fmt.Printf("Post '%v' from Feed '%v' saved succesfully\n", result.Title, feed.Name)
 	}
-
-	fmt.Println("|")
-	fmt.Println("---------------------")
 
 	return nil
 }
